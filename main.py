@@ -15,32 +15,32 @@ app.config['JSON_SORT_KEYS'] = False
 
 @app.route('/cars', methods=['GET'])
 def get_cars():
-	cursor.execute(f'SELECT * FROM cars')
-	cars = cursor.fetchall()
-	return make_response(
-		jsonify(
-			message='Car list',
-			data=cars
-		)
-	)
-
-@app.route('/cars/<id>', methods=['GET'])
-def get_car(id):
-	cursor.execute(f'SELECT * FROM cars WHERE id = {id}')
-	car = cursor.fetchall()
-	if cursor.rowcount != 0:
-		return make_response (
-			jsonify(
-				message='Car found',
-				data=car
+	if 'id' in request.args():
+		id = request.args['id']
+		cursor.execute(f'SELECT * FROM cars WHERE id = {id}')
+		car = cursor.fetchall()
+		if cursor.rowcount != 0:
+			return make_response (
+				jsonify(
+					message='Car found',
+					data=car
 				)
-		)
-	else:
-		return make_response (
-			jsonify(
-				message='Car not found',
 			)
-		), 404
+		else:
+			return make_response (
+				jsonify(
+					message='Car not found',
+				)
+			), 404
+	else:
+		cursor.execute(f'SELECT * FROM cars')
+		cars = cursor.fetchall()
+		return make_response(
+			jsonify(
+				message='Car list',
+				data=cars
+			)
+		)
 
 @app.route('/cars', methods=['POST'])
 def create_car():
@@ -55,20 +55,22 @@ def create_car():
 		)
 	)
 
-@app.route('/cars/<id>', methods=['DELETE'])
-def delete_car(id):
-	cursor.execute(f'DELETE FROM cars WHERE id = {id}')
-	car = cursor.fetchall()
-	if cursor.rowcount != 0:
-		return make_response (
-			jsonify(
-				message='Car deleted'
+@app.route('/cars', methods=['DELETE'])
+def delete_car():
+	if 'id' in request.args:
+		id = request.args['id']
+		cursor.execute(f'DELETE FROM cars WHERE id = {id}')
+		car = cursor.fetchall()
+		if cursor.rowcount != 0:
+			return make_response (
+				jsonify(
+					message='Car deleted'
+				)
 			)
-		)
-	else:
-		return make_response (
-			jsonify(
-				message='Car not found'
-			)
-		), 404
+		else:
+			return make_response (
+				jsonify(
+					message='Car not found'
+				)
+			), 404
 app.run()
